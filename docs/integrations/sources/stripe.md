@@ -193,6 +193,7 @@ On the other hand, the following streams use the `updated` field value as a curs
 - `External Account Bank Accounts`
 - `External Account Cards`
 - `Invoice Items`
+- `Invoice Line Items`
 - `Invoices`
 - `Payment Intents`
 - `Payouts`
@@ -204,6 +205,7 @@ On the other hand, the following streams use the `updated` field value as a curs
 - `Reviews`
 - `Setup Intents`
 - `Subscription Schedule`
+- `Subscription Items`
 - `Subscriptions`
 - `Top Ups`
 - `Transactions`
