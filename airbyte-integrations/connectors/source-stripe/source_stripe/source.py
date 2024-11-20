@@ -237,7 +237,7 @@ class SourceStripe(ConcurrentSourceAdapter):
             name="invoices",
             path="invoices",
             use_cache=USE_CACHE,
-            expand_items=["data.discounts", "data.total_tax_amounts.tax_rate"],
+            expand_items=["data.discounts", "data.total_tax_amounts.tax_rate", "data.lines.data.price.product"],
             event_types=[
                 "invoice.created",
                 "invoice.deleted",
@@ -434,7 +434,13 @@ class SourceStripe(ConcurrentSourceAdapter):
                 event_types=["plan.created", "plan.updated", "plan.deleted"],
                 **args,
             ),
-            IncrementalStripeStream(name="prices", path="prices", event_types=["price.created", "price.updated", "price.deleted"], **args),
+            IncrementalStripeStream(
+                name="prices",
+                path="prices",
+                event_types=["price.created", "price.updated", "price.deleted"],
+                expand_items=["data.product"],
+                **args
+            ),
             IncrementalStripeStream(
                 name="products", path="products", event_types=["product.created", "product.updated", "product.deleted"], **args
             ),
@@ -558,12 +564,24 @@ class SourceStripe(ConcurrentSourceAdapter):
                 event_types=[
                     "invoice.created",
                     "invoice.deleted",
+                    "invoice.finalization_failed",
+                    "invoice.finalized",
+                    "invoice.marked_uncollectible",
+                    "invoice.overdue",
+                    "invoice.paid",
+                    "invoice.payment_action_required",
+                    "invoice.payment_failed",
+                    "invoice.payment_succeeded",
+                    "invoice.sent",
                     "invoice.updated",
+                    "invoice.voided",
+                    "invoice.will_be_due"
                     # the event type = "invoice.upcoming" doesn't contain the `primary_key = `id` field,
                     # thus isn't used, see the doc: https://docs.stripe.com/api/invoices/object#invoice_object-id
                     # reference issue: https://github.com/airbytehq/oncall/issues/5560
                 ],
                 sub_items_attr="lines",
+                expand_items=["data.price.product"],
                 slice_data_retriever=lambda record, stream_slice: {
                     "invoice_id": stream_slice["parent"]["id"],
                     "created": stream_slice["parent"]["created"],
